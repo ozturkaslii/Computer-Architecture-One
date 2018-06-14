@@ -61,7 +61,7 @@ Memory map:
 | F5  Reserved          |
 | F4  Key pressed       |    Holds the most recent key pressed on the keyboard
 | F3  Start of Stack    |
-| F4  [more stack]      |    Stack grows down
+| F2  [more stack]      |    Stack grows down
 | ...                   |
 | 01  [more program]    |
 | 00  Program entry     |    Program loaded upward in memory starting at 0
