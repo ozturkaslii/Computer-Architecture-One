@@ -116,11 +116,20 @@ Here is a simplified CPU diagram:
   pipelines, and executes the current instruction (which was read from the
   memory pointed to by the program counter).
 
+* *Memory Address Register* (MAR): A special memory-related register that holds
+  the address in RAM that we're interested in either reading from or writing to.
+
+* *Memory Data Register* (MDR): A special memory-related register that holds
+  either the value we wish to write to RAM, or the value we just read from RAM.
+
 * *Arithmetic Logic Unit* (ALU): Part of the CPU that handles basic arithmetic and
   boolean comparisons.
 
-* *Operations* or *Opcodes*: Single numeric values that indicate to the CPU the
-  next step or series of steps.
+* *Opcodes*: Single numeric values that indicate to the CPU the next step or
+  series of steps, AKA instructions.
+
+* *Operands*: What the opcode operates on, i.e. arguments to an instruction. An
+  opcode may have no operands, one operand, or many operands.
 
 * *Cache*: Memory located inside of the CPU for low latency and high throughput.
   RAM located outside of CPU fundamentally must be slower, because it is so far
@@ -130,9 +139,14 @@ Here is a simplified CPU diagram:
   as RAM and peripherals. The CPU has internal buses, and modern systems have
   different buses for different components: DMA bus, PCI bus, 
 
-* *RAM*: A grid of bits. This is commonly interacted with as an array of bytes,
-  where each byte is 8-bits (thus forming a 2D grid of bits). RAM contains both
-  data (as binary numbers) and instructions (as binary numbers).
+* *RAM* (Random Access Memory): A grid of bits. This is commonly interacted with
+  as an array of bytes, where each byte is 8-bits (thus forming a 2D grid of
+  bits). RAM contains both data (as binary numbers) and instructions (as binary
+  numbers).
+
+* *DMA* (Direct Memory Access): A subsystem on the motherboard that handles
+  transfer of data directly from block devices (e.g. disks) to memory, bypassing
+  the CPU. The CPU is notified when the transfer is complete by an interrupt.
 
 Reading:
 
