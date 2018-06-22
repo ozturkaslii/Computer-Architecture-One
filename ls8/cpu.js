@@ -5,37 +5,40 @@
 const fs = require('fs');
 
 // Instructions
-
-const ADD  = 0b10101000; // ADD R R
-const AND  = 0b10110011; // AND R R
-const CALL = 0b01001000; // CALL R
-const CMP  = 0b10100000; // CMP R R
-const DEC  = 0b01111001; // DEC R
-const DIV  = 0b10101011; // DIV R R
-const HLT  = 0b00000001; // Halt CPU
-const INC  = 0b01111000; // INC R
-const INT  = 0b01001010; // Software interrupt R
-const IRET = 0b00001011; // Return from interrupt
-const JEQ  = 0b01010001; // JEQ R
-const JGT  = 0b01010100; // JGT R
-const JLT  = 0b01010011; // JLT R
-const JMP  = 0b01010000; // JMP R
-const JNE  = 0b01010010; // JNE R
-const LD   = 0b10011000; // Load R,R
-const LDI  = 0b10011001; // LDI R,I(mmediate)
-const MOD  = 0b10101100; // MOD R R
-const MUL  = 0b10101010; // MUL R,R
-const NOP  = 0b00000000; // NOP
-const NOT  = 0b01110000; // NOT R
-const OR   = 0b10110001; // OR R R
-const POP  = 0b01001100; // Pop R
-const PRA  = 0b01000010; // Print alpha char
-const PRN  = 0b01000011; // Print numeric register
-const PUSH = 0b01001101; // Push R
-const RET  = 0b00001001; // Return
-const ST   = 0b10011010; // Store R,R
-const SUB  = 0b10101001; // SUB R R
-const XOR  = 0b10110010; // XOR R R
+const ADD  = 0b10100000;
+const AND  = 0b10101000;
+const CALL = 0b01010000;
+const CMP  = 0b10100111;
+const DEC  = 0b01100110;
+const DIV  = 0b10100011;
+const HLT  = 0b00000001;
+const INC  = 0b01100101;
+const INT  = 0b01010010;
+const IRET = 0b00010011;
+const JEQ  = 0b01010101;
+const JGE  = 0b01011010;
+const JGT  = 0b01010111;
+const JLE  = 0b01011001;
+const JLT  = 0b01011000;
+const JMP  = 0b01010100;
+const JNE  = 0b01010110;
+const LD   = 0b10000011;
+const LDI  = 0b10000010;
+const MOD  = 0b10100100;
+const MUL  = 0b10100010;
+const NOP  = 0b00000000;
+const NOT  = 0b01101001;
+const OR   = 0b10101010;
+const POP  = 0b01000110;
+const PRA  = 0b01001000;
+const PRN  = 0b01000111;
+const PUSH = 0b01000101;
+const RET  = 0b00010001;
+const SHL  = 0b10101100;
+const SHR  = 0b10101101;
+const ST   = 0b10000100;
+const SUB  = 0b10100001;
+const XOR  = 0b10101011;
 
 // System-utilized general purpose registers
 const IM = 0x05;  // Interrupt mask register R5
@@ -135,7 +138,9 @@ class CPU {
     bt[INT]  = this.INT;
     bt[IRET] = this.IRET;
     bt[JEQ]  = this.JEQ;
+    bt[JGE]  = this.JGE;
     bt[JGT]  = this.JGT;
+    bt[JLE]  = this.JLE;
     bt[JLT]  = this.JLT;
     bt[JMP]  = this.JMP;
     bt[JNE]  = this.JNE;
@@ -151,6 +156,8 @@ class CPU {
     bt[PRN]  = this.PRN;
     bt[PUSH] = this.PUSH;
     bt[RET]  = this.RET;
+    bt[SHL]  = this.SHL;
+    bt[SHR]  = this.SHR;
     bt[ST]   = this.ST;
     bt[SUB]  = this.SUB;
     bt[XOR]  = this.XOR;
@@ -302,6 +309,14 @@ class CPU {
         this.setFlag(FLAG_EQ, valA === valB);
         this.setFlag(FLAG_GT, valA > valB);
         this.setFlag(FLAG_LT, valA < valB);
+        break;
+
+      case 'SHL':
+        this.reg[regA] = (this.reg[regA] << this.reg[regB]) & 0xff;
+        break;
+
+      case 'SHR':
+        this.reg[regA] = (this.reg[regA] >>> this.reg[regB]) & 0xff;
         break;
     }
 
@@ -502,6 +517,17 @@ class CPU {
   }
 
   /**
+   * JGE R
+   */
+  JGE(reg) {
+    if (this.getFlag(FLAG_EQ) || this.getFlag(FLAG_GT)) {
+      // Set PC so we start executing here
+      this.reg.PC = this.reg[reg];
+      this.pcAdvance = false;
+    }
+  }
+
+  /**
    * JGT R
    */
   JGT(reg) {
@@ -517,6 +543,17 @@ class CPU {
    */
   JLT(reg) {
     if (this.getFlag(FLAG_LT)) {
+      // Set PC so we start executing here
+      this.reg.PC = this.reg[reg];
+      this.pcAdvance = false;
+    }
+  }
+
+  /**
+   * JLE R
+   */
+  JLE(reg) {
+    if (this.getFlag(FLAG_EQ) || this.getFlag(FLAG_LT)) {
       // Set PC so we start executing here
       this.reg.PC = this.reg[reg];
       this.pcAdvance = false;
@@ -655,6 +692,20 @@ class CPU {
     // Pop the return address off the stack and put straight in PC
     this.reg.PC = this._pop();
     this.pcAdvance = false;
+  }
+
+  /**
+   * SHL R,R
+   */
+  SHL(regA, regB) {
+    this.alu('SHL', regA, regB);
+  }
+
+  /**
+   * SHR R,R
+   */
+  SHR(regA, regB) {
+    this.alu('SHR', regA, regB);
   }
 
   /**

@@ -20,7 +20,7 @@ class Keyboard {
 
     stdin.setRawMode(false);
     stdin.removeListener('data', this.keyHandler);
-    stdin.end();
+    stdin.pause();
   }
 
   /**
