@@ -89,9 +89,6 @@ class CPU {
     // Peripherals e.g. keyboards attach to this list
     this.peripherals = [];
 
-    // True if we should advance the PC normally this tick
-    this.pcAdvance = true;
-
     this.setupBranchTable();
   }
   
@@ -371,7 +368,7 @@ class CPU {
     // Load the instruction register from the current PC
     this.reg.IR = this.ram.read(this.reg.PC);
 
-    //console.log(`${this.reg.PC}: ${this.reg.IR.toString(2)}`);
+    //console.log(`${this.reg.PC}: ${this.reg.IR.toString(2).padStart(8,'0')}`);
 
     // Based on the value in the Instruction Register, jump to the
     // appropriate hander
@@ -394,11 +391,13 @@ class CPU {
     // E.g. CALL, JMP and variants, IRET, and RET all set the PC to a new
     // destination.
 
-    this.pcAdvance = true;
-
     handler(operandA, operandB);
+
+    // Check to see if we need to advance the PC, or if this instruction is
+    // setting it for us
+    const pcAdvance = (this.reg.IR & 0b00010000) == 0;
     
-    if (this.pcAdvance) {
+    if (pcAdvance) {
       // Move the PC to the next instruction.
       // First get the instruction size, then add to PC
       const operandCount = (this.reg.IR >> 6) & 0b11; // 
@@ -450,7 +449,6 @@ class CPU {
      
     // Set PC so we start executing here
     this.reg.PC = addr;
-    this.pcAdvance = false;
   }
 
   /**
@@ -499,7 +497,6 @@ class CPU {
 
     // Pop the return address off the stack and put straight in PC
     this.reg.PC = this._pop();
-    this.pcAdvance = false;
 
     // And interrupts back on
     this.interruptsEnabled = true;
@@ -512,7 +509,8 @@ class CPU {
     if (this.getFlag(FLAG_EQ)) {
       // Set PC so we start executing here
       this.reg.PC = this.reg[reg];
-      this.pcAdvance = false;
+    } else {
+      this.alu('ADD', 'PC', null, 2); // Next instruction
     }
   }
 
@@ -523,7 +521,8 @@ class CPU {
     if (this.getFlag(FLAG_EQ) || this.getFlag(FLAG_GT)) {
       // Set PC so we start executing here
       this.reg.PC = this.reg[reg];
-      this.pcAdvance = false;
+    } else {
+      this.alu('ADD', 'PC', null, 2); // Next instruction
     }
   }
 
@@ -534,7 +533,8 @@ class CPU {
     if (this.getFlag(FLAG_GT)) {
       // Set PC so we start executing here
       this.reg.PC = this.reg[reg];
-      this.pcAdvance = false;
+    } else {
+      this.alu('ADD', 'PC', null, 2); // Next instruction
     }
   }
 
@@ -545,7 +545,8 @@ class CPU {
     if (this.getFlag(FLAG_LT)) {
       // Set PC so we start executing here
       this.reg.PC = this.reg[reg];
-      this.pcAdvance = false;
+    } else {
+      this.alu('ADD', 'PC', null, 2); // Next instruction
     }
   }
 
@@ -556,7 +557,8 @@ class CPU {
     if (this.getFlag(FLAG_EQ) || this.getFlag(FLAG_LT)) {
       // Set PC so we start executing here
       this.reg.PC = this.reg[reg];
-      this.pcAdvance = false;
+    } else {
+      this.alu('ADD', 'PC', null, 2); // Next instruction
     }
   }
 
@@ -566,7 +568,6 @@ class CPU {
   JMP(reg) {
     // Set PC so we start executing here
     this.reg.PC = this.reg[reg];
-    this.pcAdvance = false;
   }
 
   /**
@@ -576,7 +577,8 @@ class CPU {
     if (!this.getFlag(FLAG_EQ)) {
       // Set PC so we start executing here
       this.reg.PC = this.reg[reg];
-      this.pcAdvance = false;
+    } else {
+      this.alu('ADD', 'PC', null, 2); // Next instruction
     }
   }
 
@@ -691,7 +693,6 @@ class CPU {
   RET() {
     // Pop the return address off the stack and put straight in PC
     this.reg.PC = this._pop();
-    this.pcAdvance = false;
   }
 
   /**
