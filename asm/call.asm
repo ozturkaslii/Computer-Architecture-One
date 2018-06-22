@@ -1,4 +1,10 @@
 ; Demonstrate calls
+;
+; Expected output:
+; 20
+; 30
+; 36
+; 60
 
 ; MAIN
 
@@ -27,8 +33,3 @@ Mult2Print:
     ADD R0,R0  ; or fake it by adding it to itself
     PRN R0
     RET
-
-
-
-
-

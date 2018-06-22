@@ -1,5 +1,5 @@
 /**
- * Assembler for LS-8 v2.0
+ * Assembler for LS-8 v4.0
  * 
  * Example code:
  * 
@@ -50,35 +50,40 @@ const sym = {};
 
 // Operands:
 const ops = {
-  "ADD":  { type: 2, code: '10101000' },
-  "AND":  { type: 2, code: '10110011' },
-  "CALL": { type: 1, code: '01001000' },
-  "CMP":  { type: 2, code: '10100000' },
-  "DEC":  { type: 1, code: '01111001' },
-  "DIV":  { type: 2, code: '10101011' },
+  "ADD":  { type: 2, code: '10100000' },
+  "AND":  { type: 2, code: '10101000' },
+  "CALL": { type: 1, code: '01010000' },
+  "CMP":  { type: 2, code: '10100111' },
+  "DEC":  { type: 1, code: '01100110' },
+  "DIV":  { type: 2, code: '10100011' },
   "HLT":  { type: 0, code: '00000001' },
-  "INC":  { type: 1, code: '01111000' },
-  "INT":  { type: 1, code: '01001010' },
-  "IRET": { type: 0, code: '00001011' },
-  "JEQ":  { type: 1, code: '01010001' },
-  "JMP":  { type: 1, code: '01010000' },
-  "JNE":  { type: 1, code: '01010010' },
-  "JLT":  { type: 1, code: '01010011' },
-  "JGT":  { type: 1, code: '01010100' },
-  "LD":   { type: 2, code: '10011000' },
-  "LDI":  { type: 8, code: '10011001' },
-  "MUL":  { type: 2, code: '10101010' },
+  "INC":  { type: 1, code: '01100101' },
+  "INT":  { type: 1, code: '01010010' },
+  "IRET": { type: 0, code: '00010011' },
+  "JEQ":  { type: 1, code: '01010101' },
+  "JGE":  { type: 1, code: '01011010' },
+  "JGT":  { type: 1, code: '01010111' },
+  "JLE":  { type: 1, code: '01011001' },
+  "JLT":  { type: 1, code: '01011000' },
+  "JMP":  { type: 1, code: '01010100' },
+  "JNE":  { type: 1, code: '01010110' },
+  "LD":   { type: 2, code: '10000011' },
+  "LDI":  { type: 8, code: '10000010' },
+  "MOD":  { type: 2, code: '10100100' },
+  "MUL":  { type: 2, code: '10100010' },
   "NOP":  { type: 0, code: '00000000' },
-  "NOT":  { type: 1, code: '01110000' },
-  "OR":   { type: 2, code: '10110001' },
-  "POP":  { type: 1, code: '01001100' },
-  "PRA":  { type: 1, code: '01000010' },
-  "PRN":  { type: 1, code: '01000011' },
-  "PUSH": { type: 1, code: '01001101' },
-  "RET":  { type: 0, code: '00001001' },
-  "ST":   { type: 2, code: '10011010' },
-  "SUB":  { type: 2, code: '10101001' },
-  "XOR":  { type: 2, code: '10110010' },
+  "NOT":  { type: 1, code: '01101001' },
+  "OR":   { type: 2, code: '10101010' },
+  "POP":  { type: 1, code: '01000110' },
+  "PRA":  { type: 1, code: '01001000' },
+  "PRN":  { type: 1, code: '01000111' },
+  "PUSH": { type: 1, code: '01000101' },
+  "RET":  { type: 0, code: '00010001' },
+  "SHL":  { type: 2, code: '10101100' },
+  "SHR":  { type: 2, code: '10101101' },
+  "ST":   { type: 2, code: '10000100' },
+  "SUB":  { type: 2, code: '10100001' },
+  "XOR":  { type: 2, code: '10101011' },
 };
 
 // Type to function mapping
@@ -148,7 +153,7 @@ rl.on('line', (input) => {
     if (label) {
       sym[label] = addr;
       //console.log("Label " + label + ": " + addr);
-      code.push(`# ${label} (${addr}):`);
+      code.push(`# ${label} (address ${addr}):`);
     }
 
     if (opcode !== undefined) {
@@ -266,13 +271,7 @@ function getReg(op, fatal=true) {
  * Return a value as an 8-digit binary number
  */
 function p8(v) {
-  let bin = v.toString(2);
-
-  while (bin.length < 8) {
-    bin = '0' + bin;
-  }
-
-  return bin;
+  return v.toString(2).padStart(8, '0');
 }
 
 /**

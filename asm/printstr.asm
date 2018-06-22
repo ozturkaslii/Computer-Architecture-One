@@ -2,6 +2,7 @@
 ;
 ; Declares a subroutine that prints a string at a given address
 ;
+; Expected output: Hello, world!
 
 	LDI R0,Hello         ; address of "Hello, world!" bytes
 	LDI R1,14            ; number of bytes to print

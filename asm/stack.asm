@@ -1,4 +1,8 @@
 ; Stack tester
+;
+; Expected output:
+; 1
+; 2
 
 LDI R0,1
 LDI R1,2
